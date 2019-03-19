@@ -16,6 +16,9 @@ from functions import *
 import time, timeit
 
 def get_flowmaster_income(list):
+    '''
+    从公司数据库里获得老年组流量主数据
+    '''
     originid_list = str(tuple(list))
     sql = '''SELECT x.originid, x.nick_name, x.alias, x.service_type_info, x.flowmaster_enable, y.originid, y.ref_date, y.cumulate_user, y.new_user, \
           y.cancel_user, y.a_view, y.a_click, y.a_income, y.b_view, y.b_click, y.b_income \
@@ -56,6 +59,9 @@ def get_flowmaster_income(list):
     return df_selected
 
 def combine_flowmaster_income(list, file_path):
+    '''
+    汇总日报文件夹中的所有老年组流量主表格
+    '''
     df = get_flowmaster_income(list)
     os.chdir(file_path)
     excel_list = os.listdir(file_path)
@@ -65,6 +71,9 @@ def combine_flowmaster_income(list, file_path):
     return data_all
 
 def combine_warmwind_income(file_path):
+    '''
+    汇总日报文件夹中的所有派单充值表格， 并且进行初始化（主要是统一时间格式和排序，具体的函数在另一个文件中）
+    '''
     os.chdir(file_path)
     excel_list = os.listdir(file_path)
     excel_li_warnwind = [i for i in excel_list if i.find('派单') >= 0]
@@ -78,6 +87,9 @@ def combine_warmwind_income(file_path):
     return data_warmwind
 
 def combine_novel_income(file_path):
+    '''
+    汇总日报文件夹中的所有小说充值表格， 并且进行初始化（主要是统一时间格式和排序，具体的函数在另一个文件中）
+    '''
     os.chdir(file_path)
     excel_list = os.listdir(file_path)
     excel_li_novel = [i for i in excel_list if i.find('回本') >= 0]
@@ -102,6 +114,9 @@ def combine_novel_income(file_path):
     return data_novel    
 
 def summary_data(data_novel, data_flowmaster, data_warmwind):
+    '''
+    生成之前确定好的日汇总表格中需要的数据
+    '''
     data = [[16289909.00], [15239889.32], [721466.42], [25643592.94], [120720.18], [42054222.12], [], [20501681.6839257], [62555903.8039257]]
     # 选出小说第一批和第二批求和
     type1_bool = data_novel['类型'].map(lambda x: x.find('一') >=0)
@@ -129,6 +144,9 @@ def summary_data(data_novel, data_flowmaster, data_warmwind):
     return data
     
 def output_exl(data, file_path):
+    '''
+    得到的数据之后，生成对应的excel表
+    '''
     #print(data)
     print('正在输出xlsx表')
     title = [u'',u'支出',u'总收入',u'日收入',u'本月收入',u'平均日收入',u'回本率']
@@ -215,6 +233,9 @@ def get_unique_id(file_path):
     return id_all_18
     
 def combine_commercial_data(commercial_path):
+    '''
+    汇总日报文件夹中的所有商务收入表格
+    '''
     name_list = os.listdir(commercial_path)
     df_all = pd.DataFrame()
     for name in name_list:
@@ -245,6 +266,9 @@ def filter_commercial_data(df_all, data, n=1):#df_all所有商务记录，data�
     return data_all
 
 def get_commercial_income(df_all, df_info, n=1):
+    '''
+    添加一些因为迁移或者封号原因的账号的升级信息
+    '''
     while True:
         if len(id_all_18) > df_info.shape[0]:
             print([_ for _ in id_all_18 if _ not in list(df_info['ID'])])
@@ -270,10 +294,14 @@ def get_commercial_income(df_all, df_info, n=1):
             break
     
 if __name__ == "__main__":
+    '''
+    商务收入部分
+    '''
     start = time.time()
     commercial_path = 'C:/Users/yyzq135/Desktop/明细数据/商务收入/'
     file_path = 'C:/Users/yyzq135/Desktop/明细数据/流量主id获取/'
     data_all = combine_commercial_data(commercial_path)
+    # 得到所求的18年部分账号列表
     id_all_18 = get_unique_id(file_path)
     df_info = get_upgrade_info(id_all_18)
     #df_info.to_excel('C:/Users/yyzq135/Desktop/commercial.xlsx', 
